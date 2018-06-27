@@ -21,7 +21,7 @@ class Chatbot(object):
         log("Received message \"{}\" from {} on ".format(message, senderId, pageId))
 
         sender = senderId
-        page = Page.findByIf(pageId)
+        page = Page.findById(pageId)
 
         if page is None:
             log("Error: received message on unregistered page")
