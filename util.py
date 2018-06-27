@@ -2,7 +2,7 @@ import os
 import sys
 
 # If in debug mode.
-DEBUG = os.environ.get("DEBUG", False)
+DEBUG = bool(os.environ.get("DEBUG", False))
 
 
 def log(message="", debug=False):
