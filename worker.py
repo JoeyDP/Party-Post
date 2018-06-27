@@ -1,5 +1,5 @@
 from rq import Worker, Queue, Connection
-from komidabot import redisCon
+from partypost import redisCon
 
 listen = ['high', 'default', 'low']
 
