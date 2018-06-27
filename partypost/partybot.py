@@ -105,15 +105,18 @@ class PartyBot(Chatbot):
         msg = TextMessage("Hello there.")
         msg.send(sender, page)
 
+    def sendErrorMessage(self, msg):
+        if ADMIN_CONFIGURED:
+            notification = TextMessage("Error:\t{}".format(msg))
+            notification.send(ADMIN_SENDER_ID, ADMIN_PAGE, isResponse=False)
+
     def exceptionOccured(self, e, pageId=None):
         log("Exception in request.")
         if pageId is not None:
             log("Error with page: " + str(pageId))
-        log(str(e))
-        if ADMIN_CONFIGURED:
-            notification = TextMessage("Exception:\t{}".format(str(e)))
-            notification.send(ADMIN_SENDER_ID, ADMIN_PAGE, isResponse=False)
-
+        msg = str(e)
+        log(msg)
+        self.sendErrorMessage(msg)
 
 
 from .facebook import chat_profile

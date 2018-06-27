@@ -1,5 +1,8 @@
+import hmac
+import hashlib
+
 import traceback
-from flask import request
+from flask import request, abort
 from rq.decorators import job
 
 from partypost import app, VERIFY_TOKEN
@@ -9,6 +12,8 @@ from partypost.partybot import PartyBot
 from partypost import redisCon
 
 partyBot = PartyBot()
+
+CLIENT_SECRET = os.environ['CLIENT_SECRET']
 
 
 @app.route('/messenger', methods=['GET'])
@@ -31,12 +36,39 @@ def webpage():
 def webhook():
     """ endpoint for processing incoming messaging events. """
     try:
-        receivedRequest(request)
+        if validateRequest(request):
+            receivedRequest(request)
+        else:
+            error = "Invalid request received: " + str(request)
+            log(error)
+            partyBot.sendErrorMessage(error)
+            abort(400)
     except Exception as e:
         partyBot.exceptionOccured(e)
         traceback.print_exc()
+        raise e
 
     return "ok", 200
+
+
+def validateRequest(request):
+    advertised = request.headers.get("X-Hub-Signature")
+    if advertised is None:
+        return False
+
+    advertised = advertised.replace("sha1=", "")
+    data = request.get_data()
+
+    received = hmac.new(
+        key=CLIENT_SECRET.encode('raw_unicode_escape'),
+        msg=data,
+        digestmod=hashlib.sha1
+    ).hexdigest()
+
+    return hmac.compare_digest(
+        advertised,
+        received
+    )
 
 
 def receivedRequest(request):
