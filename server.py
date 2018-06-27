@@ -24,7 +24,7 @@ def verify():
 
 
 def webpage():
-    return "Komidabot!", 200
+    return "Party Bot!", 200
 
 
 @app.route('/messenger', methods=['POST'])

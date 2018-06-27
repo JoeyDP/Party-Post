@@ -1,9 +1,8 @@
 import json
 import requests
-from requests_futures.sessions import FuturesSession
 
 from util import *
-from komidabot import redisCon
+from partypost import redisCon
 
 MESSAGE_URL = "https://graph.facebook.com/v2.11/me/messages"
 PARAMS = {"access_token": os.environ["PAGE_ACCESS_TOKEN"]}
@@ -49,13 +48,6 @@ class Message:
             log(r.text)
             return False
         return True
-
-    @staticmethod
-    def sendBatch(persons, messages, max_workers=10):
-        session = FuturesSession(max_workers=max_workers)
-        responses = [m._send(p, isResponse=False, session=session) for p, m in zip(persons, messages)]
-        results = [message._checkResponse(response.result()) for message, response in zip(messages, responses)]
-        return results
 
 
 class TextMessage(Message):
