@@ -18,7 +18,7 @@ class Chatbot(object):
         pass
 
     def receivedMessage(self, senderId, pageId, message):
-        log("Received message \"{}\" from {} on ".format(message, senderId, pageId))
+        log("Received message \"{}\" from {} on {}".format(message, senderId, pageId))
 
         sender = senderId
         page = Page.findById(pageId)
@@ -97,12 +97,12 @@ class postback:
 
 class PartyBot(Chatbot):
     def onMessage(self, sender, page, message):
-        pass
+        msg = TextMessage("Hello there.")
+        msg.send(sender, page)
 
     @postback
     def sendWelcome(self, sender, page):
-        Person.subscribe(sender)
-        msg = TextMessage("Hello there. I am the Komidabot.")
+        msg = TextMessage("Hello there.")
         msg.send(sender, page)
 
     def exceptionOccured(self, e, pageId=None):
