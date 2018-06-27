@@ -68,7 +68,7 @@ def receivedMessage(sender, recipient, message):
     try:
         partyBot.receivedMessage(sender, recipient, message)
     except Exception as e:
-        partyBot.exceptionOccured(e)
+        partyBot.exceptionOccured(e, recipient)
         traceback.print_exc()
 
 
@@ -77,7 +77,7 @@ def receivedPostback(sender, recipient, payload):
     try:
         partyBot.receivedPostback(sender, recipient, payload)
     except Exception as e:
-        partyBot.exceptionOccured(e)
+        partyBot.exceptionOccured(e, recipient)
         traceback.print_exc()
 
 

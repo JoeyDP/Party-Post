@@ -5,7 +5,6 @@ from util import *
 from partypost import redisCon
 
 MESSAGE_URL = "https://graph.facebook.com/v2.11/me/messages"
-PARAMS = {"access_token": os.environ["PAGE_ACCESS_TOKEN"]}
 HEADERS = {"Content-Type": "application/json"}
 
 
@@ -19,7 +18,7 @@ class Message:
         data["message"] = dict()
         return data
 
-    def _send(self, recipient, isResponse=True, session=None):
+    def _send(self, recipient, page, isResponse=True):
         log("sending message to {}".format(recipient))
 
         data = self.getData()
@@ -32,14 +31,11 @@ class Message:
         jsonData = json.dumps(data)
         log(jsonData)
 
-        if session is None:
-            session = requests.Session()
-
-        r = session.post(MESSAGE_URL, params=PARAMS, headers=HEADERS, data=jsonData)
+        r = requests.post(MESSAGE_URL, params={"access_token": page.access_token}, headers=HEADERS, data=jsonData)
         return r
 
-    def send(self, recipient, isResponse=True):
-        r = self._send(recipient, isResponse)
+    def send(self, recipient, page, isResponse=True):
+        r = self._send(recipient, page, isResponse=isResponse)
         return self._checkResponse(r)
 
     def _checkResponse(self, r):
@@ -209,19 +205,6 @@ class Element:
             self.buttons.append(URLButton(text, url))
         else:
             raise RuntimeError("Both url and payload given for button, pick one.")
-
-
-# def postback(func):
-#     """ Decorator """
-#     action = func.__name__
-#     Postback.registered[action] = func
-#     def wrap(**kwargs):
-#         return {
-#             "type": "action",
-#             "action": action,
-#             "args": kwargs,
-#         }
-#     return wrap
 
 
 class Button:

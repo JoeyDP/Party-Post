@@ -1,10 +1,14 @@
-import datetime
-
-from .database import Person
+from .database import Person, Page
 from .facebook.message import *
 
-
+ADMIN_CONFIGURED = False
 ADMIN_SENDER_ID = os.environ.get("ADMIN_SENDER_ID")
+ADMIN_PAGE_ACCESS_TOKEN = os.environ.get("ADMIN_PAGE_ACCESS_TOKEN")
+if ADMIN_SENDER_ID is not None and ADMIN_PAGE_ACCESS_TOKEN is not None:
+    ADMIN_PAGE = Page(access_token=ADMIN_PAGE_ACCESS_TOKEN)
+    ADMIN_CONFIGURED = True
+
+
 DISABLED = os.environ.get("DISABLED", 0) == '1'
 MAX_MESSAGE_LENGTH = 600
 
@@ -13,31 +17,39 @@ class Chatbot(object):
     def __init__(self):
         pass
 
-    def receivedMessage(self, sender, recipient, message):
-        log("Received message \"{}\" from {}".format(message, sender))
-        if sender == ADMIN_SENDER_ID:
-            if self.adminMessage(sender, message):
+    def receivedMessage(self, senderId, pageId, message):
+        log("Received message \"{}\" from {} on ".format(message, senderId, pageId))
+
+        sender = senderId
+        page = Page.findByIf(pageId)
+
+        if page is None:
+            log("Error: received message on unregistered page")
+            return
+
+        if ADMIN_CONFIGURED and senderId == ADMIN_SENDER_ID:
+            if self.adminMessage(sender, page, message):
                 return
 
         if DISABLED:
             response = TextMessage("I am temporarily offline. Follow the page for updates!")
-            response.send(sender)
-            if len(message) > 5 and ADMIN_SENDER_ID:
+            response.send(sender, page)
+            if len(message) > 5 and ADMIN_CONFIGURED:
                 report = TextMessage("{}:\n\"{}\"".format(sender, message))
-                report.send(ADMIN_SENDER_ID)
+                report.send(ADMIN_SENDER_ID, page)
             return
 
-        self.onMessage(sender, message)
+        self.onMessage(sender, page, message)
 
-    def onMessage(self, sender, message):
+    def onMessage(self, sender, page, message):
         pass
 
-    def receivedPostback(self, sender, recipient, payload):
+    def receivedPostback(self, sender, page, payload):
         log("Received postback with payload \"{}\" from {}".format(payload, sender))
 
         if DISABLED:
             response = TextMessage("I am temporarily offline. Follow the page for updates!")
-            response.send(sender)
+            response.send(sender, page)
             return
 
         data = json.loads(payload)
@@ -54,17 +66,17 @@ class Chatbot(object):
                 raise RuntimeError("No postback for action '{}'.".format(action))
             pb.func(self, sender, **args)
 
-    def adminMessage(self, sender, message):
+    def adminMessage(self, sender, page, message):
         # TODO: create @command decorator
         if message == "setup":
-            return self.runSetup(sender, message)
+            return self.runSetup(sender, page, message)
 
         return False
 
-    def runSetup(self, sender, message):
+    def runSetup(self, sender, page, message):
         response = TextMessage("Running setup")
-        response.send(sender)
-        chat_profile.setup()
+        response.send(sender, page)
+        chat_profile.setup(page)
         return True
 
 
@@ -84,21 +96,24 @@ class postback:
 
 
 class PartyBot(Chatbot):
-    def onMessage(self, sender, message):
+    def onMessage(self, sender, page, message):
         pass
 
     @postback
-    def sendWelcome(self, sender):
+    def sendWelcome(self, sender, page):
         Person.subscribe(sender)
         msg = TextMessage("Hello there. I am the Komidabot.")
-        msg.send(sender)
+        msg.send(sender, page)
 
-
-
-    def exceptionOccured(self, e):
+    def exceptionOccured(self, e, pageId=None):
         log("Exception in request.")
+        if pageId is not None:
+            log("Error with page: " + str(pageId))
         log(str(e))
-        if ADMIN_SENDER_ID:
+        if ADMIN_CONFIGURED:
             notification = TextMessage("Exception:\t{}".format(str(e)))
-            notification.send(ADMIN_SENDER_ID, isResponse=False)
+            notification.send(ADMIN_SENDER_ID, ADMIN_PAGE, isResponse=False)
 
+
+
+from .facebook import chat_profile
