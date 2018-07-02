@@ -8,12 +8,15 @@ from rq.decorators import job
 from partypost import app, VERIFY_TOKEN
 from util import *
 from partypost.partybot import PartyBot
+from partypost.facebook.attachment import Attachment
 
 from partypost import redisCon
 
 partyBot = PartyBot()
 
 CLIENT_SECRET = os.environ['CLIENT_SECRET']
+
+ACCEPTED_MEDIA_TYPES = ["image", "video"]
 
 
 @app.route('/messenger', methods=['GET'])
@@ -82,11 +85,17 @@ def receivedRequest(request):
                 recipient = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
 
                 if messaging_event.get("message"):  # someone sent us a message
-                    message = messaging_event["message"].get("text")
-                    if not message:
-                        log("Received message without text from {}.".format(str(sender)))
-                        message = ""
-                    receivedMessage.delay(sender, recipient, message)
+                    message = messaging_event["message"].get("text", "")
+                    attachments_data = messaging_event["message"].get("attachments", list())
+                    attachments = list()
+                    for attachment_data in attachments_data:
+                        media_type = attachment_data.get("type")
+                        payload = attachment_data.get("payload")
+                        if payload:
+                            url = payload.get("url")
+                            attachment = Attachment(url, media_type)
+                            attachments.append(attachment)
+                    receivedMessage.delay(sender, recipient, message, attachments)
 
                 if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
                     payload = messaging_event["postback"]["payload"]  # the message's text
@@ -94,12 +103,14 @@ def receivedRequest(request):
 
 
 @job('default', connection=redisCon)
-def receivedMessage(sender, recipient, message):
+def receivedMessage(sender, recipient, message, attachments):
     if sender == recipient:  # filter messages to self
         return
 
+    attachments = [attachment for attachment in attachments if attachment.media_type in ACCEPTED_MEDIA_TYPES]
+
     try:
-        partyBot.receivedMessage(sender, recipient, message)
+        partyBot.receivedMessage(sender, recipient, message, attachments)
     except Exception as e:
         partyBot.exceptionOccured(e, recipient)
         traceback.print_exc()

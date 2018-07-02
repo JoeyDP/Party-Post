@@ -22,7 +22,7 @@ class Message:
         log("sending message to {}".format(recipient))
 
         data = self.getData()
-        data["recipient"]["id"] = recipient
+        data["recipient"]["id"] = recipient.id
         if isResponse:
             data["messaging_type"] = "RESPONSE"
         else:
