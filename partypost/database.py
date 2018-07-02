@@ -27,6 +27,7 @@ class Person(db.Model):
 
     def add(self):
         db.session.add(self)
+        db.session.commit()
 
     def __str__(self):
         return "{} ({})".format(str(self.name), str(self.id))
@@ -53,6 +54,7 @@ class Page(db.Model):
 
     def add(self):
         db.session.add(self)
+        db.session.commit()
 
     def __str__(self):
         return str(self.id)
@@ -82,6 +84,7 @@ class Image(db.Model):
 
     def add(self):
         db.session.add(self)
+        db.session.commit()
 
     def __str__(self):
         return str(self.id)
