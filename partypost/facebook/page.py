@@ -9,11 +9,12 @@ BASE_URL = "https://graph.facebook.com"
 
 
 def postImage(imageUrl, page):
-    url = urljoin(BASE_URL, str(page.id), 'photos')
+    url = urljoin(BASE_URL, 'me/photos')
     params = {
         'access_token': page.access_token,
         'url': imageUrl
     }
+    log(url)
 
     r = requests.post(url, params=params)
     if r.status_code == 200:
