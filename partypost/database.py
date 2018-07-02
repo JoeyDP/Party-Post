@@ -1,6 +1,5 @@
 import datetime
 from partypost import db
-from sqlalchemy import ForeignKey, UniqueConstraint
 
 
 class Person(db.Model):
@@ -63,7 +62,7 @@ class Image(db.Model):
     fb_attachment_url = db.Column(db.String(255), unique=True)
     url = db.Column(db.String(512), unique=True)
 
-    sender = db.relationship(Person)
+    sender = db.Column(db.String, db.ForeignKey(Person))
 
     time_created = db.Column(db.DateTime, default=datetime.datetime.now)
     time_updated = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
