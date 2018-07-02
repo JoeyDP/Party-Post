@@ -110,7 +110,7 @@ class PartyBot(Chatbot):
                 image.fb_attachment_url = attachment.url
                 image.fb_photo_id = facebook.page.postImage(attachment.url, page)
                 # TODO upload image
-                
+
                 image.add()
             else:
                 log("Unknown attachment type: {}".format(attachment.media_type))

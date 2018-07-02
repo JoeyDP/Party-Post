@@ -16,7 +16,7 @@ partyBot = PartyBot()
 
 CLIENT_SECRET = os.environ['CLIENT_SECRET']
 
-ACCEPTED_MEDIA_TYPES = ["image", "video"]
+ACCEPTED_MEDIA_TYPES = ["image"]
 
 
 @app.route('/messenger', methods=['GET'])
