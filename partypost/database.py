@@ -58,7 +58,7 @@ class Page(db.Model):
 class Image(db.Model):
     __tablename__ = "image"
 
-    id = db.Column(db.String(128), primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     fb_photo_id = db.Column(db.String(128))
     fb_attachment_url = db.Column(db.String(255), unique=True)
     url = db.Column(db.String(512), unique=True)
