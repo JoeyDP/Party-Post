@@ -19,10 +19,16 @@ def getProfile(sender_id, access_token):
         return r.json()
     else:
         log("Failed to query profile for {}".format(sender_id))
+        log(str(r))
+        log(r.text)
+        return None
 
 
 def getName(sender_id, page):
     data = getProfile(sender_id, page.access_token)
+    if not data:
+        raise RuntimeError
+
     firstName = data.get("first_name")
     lastName = data.get("last_name")
     return firstName, lastName
