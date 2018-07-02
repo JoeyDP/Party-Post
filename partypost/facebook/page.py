@@ -21,5 +21,7 @@ def postImage(imageUrl, page):
         return data.get("id")
     else:
         log("Failed to upload image to page {}".format(page.id))
+        log(str(r))
+        log(r.text)
         return None
 
