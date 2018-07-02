@@ -16,6 +16,10 @@ class Person(db.Model):
         if sender_id is not None:
             self.id = sender_id
 
+    @property
+    def name(self):
+        return "{} {}".format(self.first_name, self.last_name)
+
     @staticmethod
     def findById(sender_id):
         person = Person.query.filter_by(id=sender_id).one_or_none()
