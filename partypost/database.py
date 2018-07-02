@@ -65,8 +65,8 @@ class Image(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     fb_photo_id = db.Column(db.String(128))
-    fb_attachment_url = db.Column(db.String(255), unique=True)
-    url = db.Column(db.String(512), unique=True)
+    fb_attachment_url = db.Column(db.String(255))
+    url = db.Column(db.String(512))
 
     sender = db.Column(db.String(128), db.ForeignKey(Person.id))
 
