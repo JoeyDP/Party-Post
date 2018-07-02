@@ -68,7 +68,7 @@ class Image(db.Model):
     fb_attachment_url = db.Column(db.String(255))
     url = db.Column(db.String(512))
 
-    sender = db.Column(db.String(128), db.ForeignKey(Person.id))
+    sender = db.ForeignKey(Person.id)
 
     time_created = db.Column(db.DateTime, default=datetime.datetime.now)
     time_updated = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
