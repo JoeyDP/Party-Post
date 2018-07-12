@@ -11,6 +11,7 @@ from partypost.partybot import PartyBot
 from partypost.facebook.attachment import Attachment
 
 from partypost import redisCon
+from partypost.database import Page
 
 partyBot = PartyBot()
 
@@ -28,7 +29,7 @@ def verify():
             return "Verification token mismatch", 403
         return request.args["hub.challenge"], 200
 
-    return 200
+    return "", 200
 
 
 @app.route('/messenger', methods=['POST'])
@@ -56,10 +57,13 @@ def getIndex():
     return "Party Bot!", 200
 
 
-@app.route('/page/<int:page>', methods=['GET'])
-def getPage(page):
+@app.route('/page/<int:pageId>', methods=['GET'])
+def getPage(pageId):
+    page = Page.findById(pageId)
+    if not page:
+        abort(404)
 
-    return "Visiting page: {}".format(str(page))
+    return "Visiting page: {}".format(page.name)
 
 
 def validateRequest(request):
