@@ -15,6 +15,11 @@
 
 Visiting page: {{ page.name }}
 
+{% for image in page.images %}
+    <img src="{{ image.url }}"/>
+{% endfor %}
+
+
 </div>
 {% endblock %}
 

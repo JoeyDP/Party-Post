@@ -9,7 +9,8 @@ class Person(db.Model):
     first_name = db.Column(db.String(255))
     last_name = db.Column(db.String(255))
 
-    page = db.ForeignKey("Page.id")
+    page_id = db.Column(db.String(128), db.ForeignKey("page.id", ondelete='CASCADE', onupdate='CASCADE'))
+    page = db.relationship("Page")
 
     time_created = db.Column(db.DateTime, default=datetime.datetime.now)
     time_updated = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
@@ -45,6 +46,8 @@ class Page(db.Model):
     time_created = db.Column(db.DateTime, default=datetime.datetime.now)
     time_updated = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
 
+    images = db.relationship("Image", back_populates="page")
+
     def __init__(self, access_token=None):
         super().__init__()
         self.access_token = access_token
@@ -68,10 +71,12 @@ class Image(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     fb_photo_id = db.Column(db.String(128))
     fb_attachment_url = db.Column(db.String(255))
-    url = db.Column(db.String(512))
 
-    sender = db.ForeignKey(Person.id)
-    page = db.ForeignKey(Page.id)
+    sender_id = db.Column(db.String(128), db.ForeignKey("person.id", ondelete='SET NULL', onupdate='CASCADE'))
+    sender = db.relationship("Person")
+
+    page_id = db.Column(db.String(128), db.ForeignKey("page.id", ondelete='CASCADE', onupdate='CASCADE'))
+    page = db.relationship("Page", back_populates="images")
 
     time_created = db.Column(db.DateTime, default=datetime.datetime.now)
     time_updated = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
@@ -85,13 +90,16 @@ class Image(db.Model):
         image = Image.query.filter_by(id=int(imageId)).one_or_none()
         return image
 
+    @property
+    def url(self):
+        return self.fb_attachment_url
+
     def add(self):
         db.session.add(self)
         db.session.commit()
 
     def __str__(self):
         return str(self.id)
-
 
 
 db.create_all()
