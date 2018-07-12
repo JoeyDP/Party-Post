@@ -9,6 +9,8 @@ class Person(db.Model):
     first_name = db.Column(db.String(255))
     last_name = db.Column(db.String(255))
 
+    page = db.ForeignKey("Page.id")
+
     time_created = db.Column(db.DateTime, default=datetime.datetime.now)
     time_updated = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
 
@@ -69,6 +71,7 @@ class Image(db.Model):
     url = db.Column(db.String(512))
 
     sender = db.ForeignKey(Person.id)
+    page = db.ForeignKey(Page.id)
 
     time_created = db.Column(db.DateTime, default=datetime.datetime.now)
     time_updated = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)

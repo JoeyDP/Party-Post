@@ -58,6 +58,7 @@ class Chatbot(object):
         if not sender:
             sender = Person(senderId)
             sender.first_name, sender.last_name = facebook.profile.getName(senderId, page)
+            sender.page = page
             sender.add()
 
         if DISABLED:
@@ -107,6 +108,7 @@ class PartyBot(Chatbot):
             if attachment.media_type == "image":
                 image = Image()
                 image.sender = sender
+                image.page = page
                 image.fb_attachment_url = attachment.url
                 image.fb_photo_id = facebook.page.postImage(attachment.url, page)
                 # TODO upload image
