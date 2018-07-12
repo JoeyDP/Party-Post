@@ -1,0 +1,39 @@
+
+html, body {
+    height: 100%;
+}
+
+.carousel, .item, .active, .fillme {
+    height: 100%;
+}
+
+.carousel-inner {
+    height: 100%;
+}
+
+.img-responsive {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.fillme {
+    overflow: hidden;
+    position: relative;
+    /*text-align:center;*/
+}
+
+.fillme img.fullWidth {
+    min-height: auto;
+    min-width: 100%;
+}
+
+.fillme img.fullHeight {
+    min-height: 100%;
+    min-width: auto;
+}

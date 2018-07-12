@@ -9,8 +9,10 @@ import redis
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN")
+DEBUG = bool(os.environ.get("DEBUG", False))
 
 app = Flask(__name__)
+app.debug = DEBUG
 Bootstrap(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL

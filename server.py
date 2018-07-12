@@ -87,10 +87,11 @@ def validateRequest(request):
 
 
 def receivedRequest(request):
+    # TODO filter duplicates
+
     data = request.get_json()
     debug(data)
     if data["object"] == "page":
-
         for entry in data["entry"]:
             for messaging_event in entry["messaging"]:
                 sender = messaging_event["sender"]["id"]        # the facebook ID of the person sending you the message
