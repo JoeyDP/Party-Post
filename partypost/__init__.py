@@ -2,6 +2,7 @@ import os
 
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
+from flask_bootstrap import Bootstrap
 
 import redis
 
@@ -10,6 +11,7 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN")
 
 app = Flask(__name__)
+Bootstrap(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
