@@ -98,7 +98,8 @@ def receivedRequest(request):
                 recipient = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
 
                 if messaging_event.get("message"):  # someone sent us a message
-                    message = messaging_event["message"].get("text", "")
+                    message = messaging_event["message"]
+                    text = message.get("text", "")
                     seq = message.get('seq')
                     attachments_data = messaging_event["message"].get("attachments", list())
                     attachments = list()
@@ -109,7 +110,7 @@ def receivedRequest(request):
                             url = payload.get("url")
                             attachment = Attachment(url, media_type)
                             attachments.append(attachment)
-                    receivedMessage.delay(sender, recipient, message, attachments, seq)
+                    receivedMessage.delay(sender, recipient, text, attachments, seq)
 
                 if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
                     payload = messaging_event["postback"]["payload"]  # the message's text
