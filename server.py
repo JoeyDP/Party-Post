@@ -28,11 +28,7 @@ def verify():
             return "Verification token mismatch", 403
         return request.args["hub.challenge"], 200
 
-    return webpage()
-
-
-def webpage():
-    return "Party Bot!", 200
+    return 200
 
 
 @app.route('/messenger', methods=['POST'])
@@ -52,6 +48,18 @@ def webhook():
         raise e
 
     return "ok", 200
+
+
+@app.route('/', methods=['GET'])
+@app.route('/index', methods=['GET'])
+def getIndex():
+    return "Party Bot!", 200
+
+
+@app.route('/page/<int:page>', methods=['GET'])
+def getPage(page):
+
+    return "Visiting page: {}".format(str(page))
 
 
 def validateRequest(request):
