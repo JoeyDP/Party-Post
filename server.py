@@ -126,7 +126,7 @@ def receivedMessage(sender, recipient, message, attachments, seq):
     # filter duplicates
     lastSeq = redisCon.get(MESSAGE_LAST_SEQ_KEY)
     if seq == lastSeq:
-        log("Duplicate message received")
+        log("Duplicate message filtered")
         return
 
     attachments = [attachment for attachment in attachments if attachment.media_type in ACCEPTED_MEDIA_TYPES]
