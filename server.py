@@ -19,6 +19,8 @@ CLIENT_SECRET = os.environ['CLIENT_SECRET']
 
 ACCEPTED_MEDIA_TYPES = ["image"]
 
+MESSAGE_LAST_SEQ_KEY = 'message_lastSeq'
+
 
 @app.route('/messenger', methods=['GET'])
 def verify():
@@ -87,8 +89,6 @@ def validateRequest(request):
 
 
 def receivedRequest(request):
-    # TODO filter duplicates
-
     data = request.get_json()
     debug(data)
     if data["object"] == "page":
@@ -99,6 +99,7 @@ def receivedRequest(request):
 
                 if messaging_event.get("message"):  # someone sent us a message
                     message = messaging_event["message"].get("text", "")
+                    seq = message.get('seq')
                     attachments_data = messaging_event["message"].get("attachments", list())
                     attachments = list()
                     for attachment_data in attachments_data:
@@ -108,7 +109,7 @@ def receivedRequest(request):
                             url = payload.get("url")
                             attachment = Attachment(url, media_type)
                             attachments.append(attachment)
-                    receivedMessage.delay(sender, recipient, message, attachments)
+                    receivedMessage.delay(sender, recipient, message, attachments, seq)
 
                 if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
                     payload = messaging_event["postback"]["payload"]  # the message's text
@@ -116,14 +117,22 @@ def receivedRequest(request):
 
 
 @job('default', connection=redisCon)
-def receivedMessage(sender, recipient, message, attachments):
-    if sender == recipient:  # filter messages to self
+def receivedMessage(sender, recipient, message, attachments, seq):
+    # filter messages to self
+    if sender == recipient:
+        return
+
+    # filter duplicates
+    lastSeq = redisCon.get(MESSAGE_LAST_SEQ_KEY)
+    if seq == lastSeq:
+        log("Duplicate message received")
         return
 
     attachments = [attachment for attachment in attachments if attachment.media_type in ACCEPTED_MEDIA_TYPES]
 
     try:
         partyBot.receivedMessage(sender, recipient, message, attachments)
+        redisCon.set(MESSAGE_LAST_SEQ_KEY, seq, ex=60)
     except Exception as e:
         partyBot.exceptionOccured(e, recipient)
         traceback.print_exc()
