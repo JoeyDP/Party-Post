@@ -31,6 +31,7 @@ class Chatbot(object):
         if not sender:
             sender = Person(senderId)
             sender.first_name, sender.last_name = facebook.profile.getName(senderId, page)
+            sender.page = page
             sender.add()
 
         if DISABLED:

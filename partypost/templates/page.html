@@ -17,6 +17,8 @@ Visiting page: {{ page.name }}
 
 {% for image in page.images %}
     <img src="{{ image.url }}"/>
+{% else %}
+    No images found
 {% endfor %}
 
 
