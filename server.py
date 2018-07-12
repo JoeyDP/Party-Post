@@ -2,7 +2,7 @@ import hmac
 import hashlib
 
 import traceback
-from flask import request, abort
+from flask import request, abort, render_template
 from rq.decorators import job
 
 from partypost import app, VERIFY_TOKEN
@@ -63,7 +63,7 @@ def getPage(pageId):
     if not page:
         abort(404)
 
-    return "Visiting page: {}".format(page.name)
+    return render_template('page.html', page=page)
 
 
 def validateRequest(request):

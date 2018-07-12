@@ -22,7 +22,7 @@ class Person(db.Model):
 
     @staticmethod
     def findById(sender_id):
-        person = Person.query.filter_by(id=sender_id).one_or_none()
+        person = Person.query.filter_by(id=str(sender_id)).one_or_none()
         return person
 
     def add(self):
@@ -49,7 +49,7 @@ class Page(db.Model):
 
     @staticmethod
     def findById(pageId):
-        page = Page.query.filter_by(id=pageId).one_or_none()
+        page = Page.query.filter_by(id=str(pageId)).one_or_none()
         return page
 
     def add(self):
@@ -79,7 +79,7 @@ class Image(db.Model):
 
     @staticmethod
     def findById(imageId):
-        image = Image.query.filter_by(id=imageId).one_or_none()
+        image = Image.query.filter_by(id=int(imageId)).one_or_none()
         return image
 
     def add(self):
