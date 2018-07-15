@@ -81,10 +81,6 @@ class Chatbot(object):
                 raise RuntimeError("No postback for action '{}'.".format(action))
             pb.func(self, sender, **args)
 
-    def runSetup(self, page):
-        chat_profile.setup(page)
-        return True
-
 
 class postback:
     def __init__(self, func):
@@ -106,15 +102,18 @@ class PartyBot(Chatbot):
         msg = TextMessage("Hello there.")
         msg.send(sender, page)
         for attachment in attachments:
-            if attachment.media_type == "image":
-                image = Image()
-                image.sender = sender
-                image.page = page
-                image.fb_attachment_url = attachment.url
-                image.fb_photo_id = facebook.page.postImage(attachment.url, page)
-                image.add()
-            else:
-                log("Unknown attachment type: {}".format(attachment.media_type))
+            self.processAttachment(sender, page, attachment)
+
+    def processAttachment(self, sender, page, attachment):
+        if attachment.media_type == "image":
+            image = Image()
+            image.sender = sender
+            image.page = page
+            image.fb_attachment_url = attachment.url
+            image.fb_photo_id = facebook.page.postImage(attachment.url, page)
+            image.add()
+        else:
+            log("Unknown attachment type: {}".format(attachment.media_type))
 
     @postback
     def sendWelcome(self, sender, page):
@@ -134,5 +133,3 @@ class PartyBot(Chatbot):
         log(msg)
         self.sendErrorMessage(msg)
 
-
-from .facebook import chat_profile
