@@ -99,10 +99,16 @@ class postback:
 
 class PartyBot(Chatbot):
     def onMessage(self, sender, page, message, attachments):
-        msg = TextMessage("Hello there.")
-        msg.send(sender, page)
+        status = True
         for attachment in attachments:
-            self.processAttachment(sender, page, attachment)
+            status = status and self.processAttachment(sender, page, attachment)
+
+        if status:
+            msg = TextMessage("Je bericht werd succesvol verwerkt.")
+            msg.send(sender, page)
+        else:
+            msg = TextMessage("Oeps :/. Er ging iets mis bij het verwerken van (een deel van) je upload.")
+            msg.send(sender, page)
 
     def processAttachment(self, sender, page, attachment):
         if attachment.media_type == "image":
@@ -112,14 +118,16 @@ class PartyBot(Chatbot):
             image.fb_attachment_url = attachment.url
             image.fb_photo_id = facebook.page.postImage(attachment.url, page)
             image.add()
+            return True
         else:
             log("Unknown attachment type: {}".format(attachment.media_type))
+            return False
 
     @postback
     def sendWelcome(self, sender, page):
         msg = TextMessage("Welkom op {}.".format(page.name))
         msg.send(sender, page)
-        msg = TextMessage("Stuur een leuke foto door en dan wordtdie op de Facebook pagina geplaatst en live getoond!")
+        msg = TextMessage("Stuur een leuke foto door en dan wordt die op de Facebook pagina geplaatst en live getoond!")
         msg.send(sender, page)
 
     def sendErrorMessage(self, msg):
