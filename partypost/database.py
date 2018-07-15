@@ -59,7 +59,7 @@ class Page(db.Model):
 
     @staticmethod
     def all():
-        return Image.query.all()
+        return Page.query.all()
 
     def add(self):
         db.session.add(self)
@@ -92,6 +92,11 @@ class Image(db.Model):
     @staticmethod
     def findById(imageId):
         image = Image.query.filter_by(id=int(imageId)).one_or_none()
+        return image
+
+    @staticmethod
+    def findByPhotoId(photoId):
+        image = Image.query.filter_by(fb_photo_id=str(photoId)).one_or_none()
         return image
 
     @staticmethod

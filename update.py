@@ -1,7 +1,10 @@
 import bacli
 
 from partypost.database import Page, Image
-from util import log
+from util import log, debug
+
+from RESTfacebook import FacebookAPI
+from RESTfacebook.page import Page as FBPage
 
 
 bacli.setDescription("Commands for updating database")
@@ -35,10 +38,25 @@ def crawl():
     """ Crawls every page for new images that may have been posted. """
     log("Running crawl")
     for page in Page.all():
-        pass
-        # TODO crawl images on page
-        # store in database if not yet present
+        api = FacebookAPI(page.access_token)
+        pageApi = FBPage(api, id=page.id)
+        photos = pageApi.getPhotos(type='uploaded', fields='images')
+        for photo in photos:
+            debug("Processing photo with id {}".format(str(photo.id)))
+            if Image.findByPhotoId(photo.id):
+                debug("Already present")
+                # Note: If chronologically, the loop may be stopped here to increase performance.
+            else:
+                debug("Not in database yet, adding it")
+                fbImage = _getBestImage(photo.images)
+
+                image = Image()
+                image.sender = None
+                image.page = page
+                image.fb_attachment_url = fbImage.source
+                image.fb_photo_id = photo.id
+                image.add()
 
 
-
-
+def _getBestImage(images):
+    return max(images, key=lambda x: x.width * x.height)
