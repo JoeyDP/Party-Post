@@ -99,6 +99,10 @@ class postback:
 
 class PartyBot(Chatbot):
     def onMessage(self, sender, page, message, attachments):
+        if len(attachments) == 0:
+            self.sendInfo(sender, page)
+            return
+
         status = True
         for attachment in attachments:
             status = status and self.processAttachment(sender, page, attachment)
@@ -127,6 +131,9 @@ class PartyBot(Chatbot):
     def sendWelcome(self, sender, page):
         msg = TextMessage("Welkom op {}.".format(page.name))
         msg.send(sender, page)
+        self.sendInfo(sender, page)
+
+    def sendInfo(self, sender, page):
         msg = TextMessage("Stuur een leuke foto door en dan wordt die op de Facebook pagina geplaatst en live getoond!")
         msg.send(sender, page)
 
