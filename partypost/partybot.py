@@ -117,7 +117,9 @@ class PartyBot(Chatbot):
 
     @postback
     def sendWelcome(self, sender, page):
-        msg = TextMessage("Hello there.")
+        msg = TextMessage("Welkom op {}.".format(page.name))
+        msg.send(sender, page)
+        msg = TextMessage("Stuur een leuke foto door en dan wordtdie op de Facebook pagina geplaatst en live getoond!")
         msg.send(sender, page)
 
     def sendErrorMessage(self, msg):

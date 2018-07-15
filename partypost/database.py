@@ -57,6 +57,10 @@ class Page(db.Model):
         page = Page.query.filter_by(id=str(pageId)).one_or_none()
         return page
 
+    @staticmethod
+    def all():
+        return Image.query.all()
+
     def add(self):
         db.session.add(self)
         db.session.commit()
@@ -89,6 +93,10 @@ class Image(db.Model):
     def findById(imageId):
         image = Image.query.filter_by(id=int(imageId)).one_or_none()
         return image
+
+    @staticmethod
+    def all():
+        return Image.query.all()
 
     @property
     def url(self):

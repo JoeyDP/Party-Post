@@ -40,7 +40,7 @@ def getWelcomeData():
     data = {"greeting": [
         {
             "locale": "default",
-            "text": "Welcome!"
+            "text": "Let's get this party started!"
         }
         ]
     }
@@ -49,17 +49,18 @@ def getWelcomeData():
 
 
 def getMenuData():
-    menu = {
-        "locale": "default",
-        "composer_input_disabled": False,
-        "call_to_actions": [
-
-        ],
-    }
-
-    data = {
-        "persistent_menu": [menu]
-    }
+    # menu = {
+    #     "locale": "default",
+    #     "composer_input_disabled": False,
+    #     "call_to_actions": [
+    #
+    #     ],
+    # }
+    #
+    # data = {
+    #     "persistent_menu": [menu]
+    # }
+    data = dict()
     return data
 
 
