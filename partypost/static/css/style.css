@@ -1,6 +1,7 @@
 
 html, body {
     height: 100%;
+    background-color: black;
 }
 
 .carousel, .item, .active, .fillme {
@@ -25,7 +26,6 @@ html, body {
 .fillme {
     overflow: hidden;
     position: relative;
-    /*text-align:center;*/
 }
 
 .fillme img.fullWidth {
@@ -36,4 +36,24 @@ html, body {
 .fillme img.fullHeight {
     min-height: 100%;
     min-width: auto;
+}
+
+.caption {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.carousel-caption {
+    max-width: 100%;
+    width:100%;
+    left: 0;
+    padding:10px;
+}
+
+.hover-only{
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.hover-only:hover{
+    opacity: 1;
 }

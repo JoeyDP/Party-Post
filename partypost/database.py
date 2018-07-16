@@ -1,6 +1,7 @@
 import datetime
 from partypost import db
 
+from sqlalchemy.dialects import postgresql
 
 class Person(db.Model):
     __tablename__ = "person"
@@ -60,6 +61,15 @@ class Page(db.Model):
     @staticmethod
     def all():
         return Page.query.all()
+
+    def getNewImages(self, minTime=None, maxTime=None, amount=3):
+        q = Image.query.filter_by(page=self)
+
+        if minTime and maxTime:
+            q = q.filter(db.or_(Image.time_created > maxTime, Image.time_created < minTime))
+
+        q = q.order_by(Image.time_created.desc()).limit(amount)
+        return q.all()
 
     def add(self):
         db.session.add(self)

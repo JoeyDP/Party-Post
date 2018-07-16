@@ -1,8 +1,11 @@
 import hmac
 import hashlib
-
 import traceback
-from flask import request, abort, render_template
+from datetime import timedelta, datetime
+
+# import dateutil.parser
+
+from flask import request, abort, render_template, jsonify
 from rq.decorators import job
 
 from partypost import app, VERIFY_TOKEN
@@ -68,6 +71,48 @@ def getPage(pageId):
     return render_template('page.html', page=page)
 
 
+@app.route('/api/page/<int:pageId>/images', methods=['GET'])
+def apiGetImages(pageId):
+    page = Page.findById(pageId)
+    if not page:
+        abort(404)
+
+    try:
+        minTime = request.args.get('minTime', type=int)
+        if minTime:
+            # minTime = dateutil.parser.parse(minTime)
+            minTime = datetime.fromtimestamp(minTime/1000.0)
+            minTime -= timedelta(milliseconds=1)
+
+        maxTime = request.args.get('maxTime', type=int)
+        if maxTime:
+            # maxTime = dateutil.parser.parse(maxTime)
+            maxTime = datetime.fromtimestamp(maxTime/1000.0)
+            maxTime += timedelta(milliseconds=1)
+
+    except ValueError as e:
+        return jsonify({'error': "Invalid datetime format used."}), 400
+
+    amount = request.args.get('amount', 1, type=int)
+
+    images = page.getNewImages(minTime=minTime, maxTime=maxTime, amount=amount)
+
+    data = list()
+    for image in images:
+        entry = {
+            'url': image.url,
+            'time_created': image.time_created.timestamp()
+        }
+        if image.sender:
+            entry['sender'] = {
+                'id': image.sender.id,
+                'name': image.sender.name
+            }
+        data.append(entry)
+    response = {'data': data}
+    return jsonify(response)
+
+
 def validateRequest(request):
     advertised = request.headers.get("X-Hub-Signature")
     if advertised is None:
@@ -94,8 +139,9 @@ def receivedRequest(request):
     if data["object"] == "page":
         for entry in data["entry"]:
             for messaging_event in entry["messaging"]:
-                sender = messaging_event["sender"]["id"]        # the facebook ID of the person sending you the message
-                recipient = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
+                sender = messaging_event["sender"]["id"]  # the facebook ID of the person sending you the message
+                recipient = messaging_event["recipient"][
+                    "id"]  # the recipient's ID, which should be your page's facebook ID
 
                 if messaging_event.get("message"):  # someone sent us a message
                     message = messaging_event["message"]
@@ -146,5 +192,3 @@ def receivedPostback(sender, recipient, payload):
     except Exception as e:
         partyBot.exceptionOccured(e, recipient)
         traceback.print_exc()
-
-
