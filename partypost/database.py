@@ -121,6 +121,10 @@ class Image(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     def __str__(self):
         return str(self.id)
 

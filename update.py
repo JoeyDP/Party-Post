@@ -23,14 +23,16 @@ def run():
 def cleanup():
     """ Checks for all images whether they still exist on Facebook. Otherwise they are removed. """
     log("Running cleanup")
-    for image in Image.all():
-        # TODO query image
-        post = None
-        if post is None:
-            log("Image with id {} and url {} was removed from Facebook.".format(image.id, image.url))
-            log("Deleting it from the database.")
-            # image.delete()
-            log("")
+    for page in Page.all():
+        api = FacebookAPI(page.access_token)
+        for image in page.images:
+            # TODO query image
+            post = api.getPost(image.fb_photo_id)
+            if post is None:
+                log("Image with id {} and url {} was removed from Facebook.".format(image.id, image.url))
+                log("Deleting it from the database.")
+                image.delete()
+                log("")
 
 
 @bacli.command
