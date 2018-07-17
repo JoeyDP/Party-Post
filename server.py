@@ -140,13 +140,31 @@ def receivedRequest(request):
         for entry in data["entry"]:
             if 'messaging' in entry:
                 for messaging_event in entry["messaging"]:
-                    receivedMessagingEvent(messaging_event)
+                    receivedMessagingEvent.delay(messaging_event)
             if 'changes' in entry:
                 for change_event in entry['changes']:
-                    debug("Change event:")
-                    debug(change_event)
+                    receivedChangeEvent.delay(change_event)
 
 
+@job('default', connection=redisCon)
+def receivedChangeEvent(change_event):
+    debug("Change event:")
+    debug(change_event)
+    if change_event.get('field') == 'feed':
+        change = change_event['value']
+        page = change['from']['id']
+        postId = change['post_id']
+        action = change['verb']
+        published = bool(change['published'])
+        if published:
+            log("Action: {} on post: {}".format(str(action), str(postId)))
+            if action == 'add':
+                log("Adding image")
+            elif action == 'delete':
+                log("Removing image")
+
+
+@job('default', connection=redisCon)
 def receivedMessagingEvent(messaging_event):
     sender = messaging_event["sender"]["id"]  # the facebook ID of the person sending you the message
     recipient = messaging_event["recipient"][
@@ -165,14 +183,13 @@ def receivedMessagingEvent(messaging_event):
                 url = payload.get("url")
                 attachment = Attachment(url, media_type)
                 attachments.append(attachment)
-        receivedMessage.delay(sender, recipient, text, attachments, seq)
+        receivedMessage(sender, recipient, text, attachments, seq)
 
     if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
         payload = messaging_event["postback"]["payload"]  # the message's text
-        receivedPostback.delay(sender, recipient, payload)
+        receivedPostback(sender, recipient, payload)
 
 
-@job('default', connection=redisCon)
 def receivedMessage(sender, recipient, message, attachments, seq):
     # filter messages to self
     if sender == recipient:
@@ -194,7 +211,6 @@ def receivedMessage(sender, recipient, message, attachments, seq):
         traceback.print_exc()
 
 
-@job('default', connection=redisCon)
 def receivedPostback(sender, recipient, payload):
     try:
         partyBot.receivedPostback(sender, recipient, payload)
