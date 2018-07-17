@@ -141,12 +141,12 @@
                             var elem = $("#itemTemplate").tmpl(item);
                             if (time > maxTime) {
                                 console.log("A brand new image was found!");
-                                newMaxTime = time;
+                                newMaxTime = new Date(Math.max(time, newMaxTime));
                                 elem = elem.insertAfter("#myCarousel .active");
                             }else{
                                 if (minTime == null || time < minTime) {
-                                minTime = time;
-                            }
+                                    minTime = time;
+                                }
                                 elem = elem.appendTo("#myCarousel .carousel-inner");
                             }
                             scaleItem($(elem).find('.fillme'));
