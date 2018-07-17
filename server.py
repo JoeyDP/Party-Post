@@ -138,29 +138,38 @@ def receivedRequest(request):
     debug(data)
     if data["object"] == "page":
         for entry in data["entry"]:
-            for messaging_event in entry["messaging"]:
-                sender = messaging_event["sender"]["id"]  # the facebook ID of the person sending you the message
-                recipient = messaging_event["recipient"][
-                    "id"]  # the recipient's ID, which should be your page's facebook ID
+            if 'messaging' in entry:
+                for messaging_event in entry["messaging"]:
+                    receivedMessagingEvent(messaging_event)
+            if 'changes' in entry:
+                for change_event in entry['changes']:
+                    debug("Change event:")
+                    debug(change_event)
 
-                if messaging_event.get("message"):  # someone sent us a message
-                    message = messaging_event["message"]
-                    text = message.get("text", "")
-                    seq = message.get('seq')
-                    attachments_data = messaging_event["message"].get("attachments", list())
-                    attachments = list()
-                    for attachment_data in attachments_data:
-                        media_type = attachment_data.get("type")
-                        payload = attachment_data.get("payload")
-                        if payload:
-                            url = payload.get("url")
-                            attachment = Attachment(url, media_type)
-                            attachments.append(attachment)
-                    receivedMessage.delay(sender, recipient, text, attachments, seq)
 
-                if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
-                    payload = messaging_event["postback"]["payload"]  # the message's text
-                    receivedPostback.delay(sender, recipient, payload)
+def receivedMessagingEvent(messaging_event):
+    sender = messaging_event["sender"]["id"]  # the facebook ID of the person sending you the message
+    recipient = messaging_event["recipient"][
+        "id"]  # the recipient's ID, which should be your page's facebook ID
+
+    if messaging_event.get("message"):  # someone sent us a message
+        message = messaging_event["message"]
+        text = message.get("text", "")
+        seq = message.get('seq')
+        attachments_data = messaging_event["message"].get("attachments", list())
+        attachments = list()
+        for attachment_data in attachments_data:
+            media_type = attachment_data.get("type")
+            payload = attachment_data.get("payload")
+            if payload:
+                url = payload.get("url")
+                attachment = Attachment(url, media_type)
+                attachments.append(attachment)
+        receivedMessage.delay(sender, recipient, text, attachments, seq)
+
+    if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
+        payload = messaging_event["postback"]["payload"]  # the message's text
+        receivedPostback.delay(sender, recipient, payload)
 
 
 @job('default', connection=redisCon)
