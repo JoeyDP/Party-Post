@@ -15,6 +15,7 @@
          data-interval="10000">
 
         <!-- Wrapper for slides -->
+        <!-- Note: changes here should be copied to jquery template (script) as well -->
         <div class="carousel-inner">
             {% for image in page.getNewImages(amount=6) %}
                 <div class="item{% if loop.first %} active{% endif %}" data-time="{{ image.time_created.timestamp() }}">
@@ -134,21 +135,24 @@
                 function (response) {
                     try {
                         var data = response.data;
+                        var newMaxTime = maxTime;
                         $.each(response.data, function (index, item) {
                             var time = new Date(item.time_created * 1000);
+                            var elem = $("#itemTemplate").tmpl(item);
                             if (time > maxTime) {
-                                maxTime = time;
                                 console.log("A brand new image was found!");
-                            }
-                            if (minTime == null || time < minTime) {
+                                newMaxTime = time;
+                                elem = elem.insertAfter("#myCarousel .active");
+                            }else{
+                                if (minTime == null || time < minTime) {
                                 minTime = time;
                             }
-                            console.log("Creating element");
-                            var elem = $("#itemTemplate").tmpl(item);
-                            elem = elem.appendTo("#myCarousel .carousel-inner");
+                                elem = elem.appendTo("#myCarousel .carousel-inner");
+                            }
                             scaleItem($(elem).find('.fillme'));
                         });
 
+                        maxTime = newMaxTime;
                         console.log(data.length + "/" + amount + " items fetched");
 
                         var missingItems = amount - data.length;
