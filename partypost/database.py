@@ -47,10 +47,10 @@ class Page(db.Model):
     time_created = db.Column(db.DateTime, default=datetime.datetime.now)
     time_updated = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
 
-    images = db.relationship("Image", back_populates="page")
+    images = db.relationship("Image", back_populates="page", foreign_keys="Image.page_id")
 
     info_image_id = db.Column(db.Integer, db.ForeignKey("image.id", ondelete='SET NULL', onupdate='CASCADE'), nullable=True)
-    info_image = db.relationship("Image", back_populates="page")
+    info_image = db.relationship("Image", foreign_keys="Page.info_image_id")
 
     def __init__(self, access_token=None):
         super().__init__()
@@ -95,7 +95,7 @@ class Image(db.Model):
     sender = db.relationship("Person")
 
     page_id = db.Column(db.String(128), db.ForeignKey("page.id", ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
-    page = db.relationship("Page", back_populates="images")
+    page = db.relationship("Page", back_populates="images", foreign_keys="Image.page_id")
 
     time_created = db.Column(db.DateTime, default=datetime.datetime.now)
     time_updated = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)

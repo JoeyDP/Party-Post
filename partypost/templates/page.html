@@ -12,13 +12,16 @@
 
 {% block content %}
     <div id="myCarousel" class="carousel slide" data-ride="carousel" data-wrap="false" data-pause="false"
-         data-interval="10000">
+         data-interval="6000">
 
         <!-- Wrapper for slides -->
         <!-- Note: changes here should be copied to jquery template (script) as well -->
         <div class="carousel-inner">
-            {% for image in page.getNewImages(amount=6) %}
-                <div class="item{% if loop.first %} active{% endif %}" data-time="{{ image.time_created.timestamp() }}">
+            {% for image in [page.info_image] + page.getNewImages(amount=6) if image %}
+                <div class="item{% if loop.first %} active{% endif %}"
+                     data-time="{{ image.time_created.timestamp() }}"
+                     {% if image == page.info_image %}data-is-info-image="true"{% endif %}
+                >
                     <div class="fillme" align="center">
                         <img class="img-responsive" src="{{ image.url }}"/>
                         {% if image.sender %}
@@ -105,9 +108,16 @@
                 // Remove old items
                 var itemsBefore = $(e.relatedTarget).prevAll();
                 while (itemsBefore.size() > BUFFER_SIZE) {
-                    itemsBefore.last().remove();        // remove first element of list (last because ordered from current)
+                    var toRemove = itemsBefore.last();  // remove first element of list (last because ordered from current)
+                    if (toRemove.data("isInfoImage")) {
+                        toRemove.detach();
+                        toRemove.appendTo("#myCarousel .carousel-inner");
+                        console.log("Moved info image to back");
+                    } else {
+                        toRemove.remove();
+                        console.log("Removed an item");
+                    }
                     itemsBefore = $(e.relatedTarget).prevAll();
-                    console.log("Removed an item");
                 }
             }
         });
@@ -191,9 +201,6 @@
                 {{/if}}
             </div>
         </div>
-
-
-
 
 
     </script>

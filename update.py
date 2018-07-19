@@ -6,6 +6,8 @@ from util import log, debug
 from RESTfacebook import FacebookAPI
 from RESTfacebook.page import Page as FBPage
 
+from tqdm import tqdm
+
 
 bacli.setDescription("Commands for updating database")
 
@@ -26,7 +28,6 @@ def cleanup():
     for page in Page.all():
         api = FacebookAPI(page.access_token)
         for image in page.images:
-            # TODO query image
             post = api.getPost(image.fb_photo_id)
             if post is None:
                 log("Image with id {} and url {} was removed from Facebook.".format(image.id, image.url))
@@ -43,13 +44,13 @@ def crawl():
         api = FacebookAPI(page.access_token)
         pageApi = FBPage(api, id=page.id)
         photos = pageApi.getPhotos(type='uploaded', fields='images')
-        for photo in photos:
-            debug("Processing photo with id {}".format(str(photo.id)))
+        for photo in tqdm(photos):
+            tqdm.write("Processing photo with id {}".format(str(photo.id)), end='\t->\t')
             if Image.findByPhotoId(photo.id):
-                debug("Already present")
                 # Note: If chronologically, the loop may be stopped here to increase performance.
+                tqdm.write("Already present")
             else:
-                debug("Not in database yet, adding it")
+                tqdm.write("Not in database yet, adding it")
                 fbImage = _getBestImage(photo.images)
 
                 image = Image()
