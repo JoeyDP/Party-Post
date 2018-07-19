@@ -49,6 +49,9 @@ class Page(db.Model):
 
     images = db.relationship("Image", back_populates="page")
 
+    info_image_id = db.Column(db.Integer, db.ForeignKey("image.id", ondelete='SET NULL', onupdate='CASCADE'), nullable=True)
+    info_image = db.relationship("Image", back_populates="page")
+
     def __init__(self, access_token=None):
         super().__init__()
         self.access_token = access_token
@@ -64,6 +67,8 @@ class Page(db.Model):
 
     def getNewImages(self, minTime=None, maxTime=None, amount=3):
         q = Image.query.filter_by(page=self)
+        if self.info_image:
+            q = q.filter(Image.id != self.info_image.id)
 
         if minTime and maxTime:
             q = q.filter(db.or_(Image.time_created > maxTime, Image.time_created < minTime))
