@@ -7,7 +7,7 @@ bacli.setDescription("Run setup for the chatbot of a specific page.")
 
 
 @bacli.command
-def main(pageId: int):
+def run(pageId: int):
     page = Page.findById(pageId)
     if not page:
         log("No page found with id: {}".format(str(pageId)))

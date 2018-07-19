@@ -79,7 +79,7 @@ class Chatbot(object):
             args = data.get("args", dict())
             if not pb:
                 raise RuntimeError("No postback for action '{}'.".format(action))
-            pb.func(self, sender, **args)
+            pb.func(self, sender, page, **args)
 
 
 class postback:
