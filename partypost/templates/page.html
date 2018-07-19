@@ -93,17 +93,16 @@
             });
         }
 
-
-        $('#myCarousel').on('slide.bs.carousel', function (e) {
-            var amountBuffered = $(e.relatedTarget).nextAll().size();
-            if (e.direction === "left" && amountBuffered < BUFFER_SIZE) {
-                console.log("Fetching new items");
-                addItems(BUFFER_SIZE - amountBuffered);
-            }
-        });
-
         $('#myCarousel').on('slid.bs.carousel', function (e) {
             if (e.direction === "left") {
+                // Add new items
+                var amountBuffered = $(e.relatedTarget).nextAll().size();
+                if (amountBuffered < BUFFER_SIZE) {
+                    console.log("Fetching new items");
+                    addItems(BUFFER_SIZE - amountBuffered);
+                }
+
+                // Remove old items
                 var itemsBefore = $(e.relatedTarget).prevAll();
                 while (itemsBefore.size() > BUFFER_SIZE) {
                     itemsBefore.last().remove();        // remove first element of list (last because ordered from current)
@@ -143,7 +142,7 @@
                                 console.log("A brand new image was found!");
                                 newMaxTime = new Date(Math.max(time, newMaxTime));
                                 elem = elem.insertAfter("#myCarousel .active");
-                            }else{
+                            } else {
                                 if (minTime == null || time < minTime) {
                                     minTime = time;
                                 }
@@ -192,6 +191,7 @@
                 {{/if}}
             </div>
         </div>
+
 
 
 
