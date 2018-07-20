@@ -1,0 +1,3 @@
+[submodule "REST-Facebook"]
+	path = REST-Facebook
+	url = git@github.com:JoeyDP/REST-Facebook.git
