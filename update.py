@@ -28,7 +28,9 @@ def cleanup():
     for page in Page.all():
         api = FacebookAPI(page.access_token)
         for image in page.images:
-            post = api.getPost(image.fb_photo_id)
+            post = None
+            if image.fb_photo_id:
+                post = api.getPost(image.fb_photo_id)
             if post is None:
                 log("Image with id {} and url {} was removed from Facebook.".format(image.id, image.url))
                 log("Deleting it from the database.")
