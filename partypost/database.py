@@ -70,11 +70,24 @@ class Page(db.Model):
         if self.info_image:
             q = q.filter(Image.id != self.info_image.id)
 
-        if minTime and maxTime:
-            q = q.filter(db.or_(Image.time_created > maxTime, Image.time_created < minTime))
+        images = list()
+        # Query newer images
+        if maxTime:
+            qMax = q.filter(Image.time_created > maxTime).order_by(Image.time_created.asc()).limit(amount)
+            images.extend(qMax.all())
 
-        q = q.order_by(Image.time_created.desc()).limit(amount)
-        return q.all()
+        # Query older images
+        remaining = amount - len(images)
+        if minTime and remaining > 0:
+            qMin = q.filter(Image.time_created < minTime).order_by(Image.time_created.desc()).limit(remaining)
+            images.extend(qMin.all())
+
+        # If no time specified, query all
+        if not minTime and not maxTime:
+            q = q.order_by(Image.time_created.desc()).limit(amount)
+            images = q.all()
+            
+        return images
 
     def add(self):
         db.session.add(self)
