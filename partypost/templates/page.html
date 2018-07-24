@@ -66,7 +66,7 @@
         $(window).resize(scaleItems);
 
         $(window).load(function () {
-            var items = $('.item');
+            var items = $('.item:not([data-is-info-image])');
             maxTime = new Date(items.first().data('time') * 1000);
             console.log("max time: " + maxTime);
             minTime = new Date(items.last().data('time') * 1000);
