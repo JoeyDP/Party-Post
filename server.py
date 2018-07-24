@@ -80,13 +80,11 @@ def apiGetImages(pageId):
     try:
         minTime = request.args.get('minTime', type=int)
         if minTime:
-            # minTime = dateutil.parser.parse(minTime)
             minTime = datetime.fromtimestamp(minTime/1000.0)
             minTime -= timedelta(milliseconds=1)
 
         maxTime = request.args.get('maxTime', type=int)
         if maxTime:
-            # maxTime = dateutil.parser.parse(maxTime)
             maxTime = datetime.fromtimestamp(maxTime/1000.0)
             maxTime += timedelta(milliseconds=1)
 
