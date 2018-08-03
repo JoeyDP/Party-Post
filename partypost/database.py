@@ -43,6 +43,7 @@ class Page(db.Model):
     id = db.Column(db.String(128), primary_key=True)
     name = db.Column(db.String(512))
     access_token = db.Column(db.String(255))
+    fb_post_access_token = db.Column(db.String(255))
 
     time_created = db.Column(db.DateTime, default=datetime.datetime.now)
     time_updated = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
@@ -55,6 +56,12 @@ class Page(db.Model):
     def __init__(self, access_token=None):
         super().__init__()
         self.access_token = access_token
+
+    @property
+    def post_access_token(self):
+        if self.fb_post_access_token:
+            return self.fb_post_access_token
+        return self.access_token
 
     @staticmethod
     def findById(pageId):

@@ -11,7 +11,7 @@ BASE_URL = "https://graph.facebook.com"
 def postImage(imageUrl, page):
     url = urljoin(BASE_URL, 'me/photos')
     params = {
-        'access_token': page.access_token,
+        'access_token': page.post_access_token,
         'url': imageUrl
     }
     log(url)
