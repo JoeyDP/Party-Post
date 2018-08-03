@@ -86,7 +86,7 @@ class Page(db.Model):
         if not minTime and not maxTime:
             q = q.order_by(Image.time_created.desc()).limit(amount)
             images = q.all()
-            
+
         return images
 
     def add(self):

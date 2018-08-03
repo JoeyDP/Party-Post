@@ -5,6 +5,7 @@ from util import log, debug
 
 from RESTfacebook import FacebookAPI
 from RESTfacebook.page import Page as FBPage
+from RESTapi import RequestException
 
 from tqdm import tqdm
 
@@ -28,14 +29,19 @@ def cleanup():
     for page in Page.all():
         api = FacebookAPI(page.access_token)
         for image in page.images:
-            post = None
             if image.fb_photo_id:
-                post = api.getPost(image.fb_photo_id)
-            if post is None:
-                log("Image with id {} and url {} was removed from Facebook.".format(image.id, image.url))
-                log("Deleting it from the database.")
-                image.delete()
-                log("")
+                try:
+                    post = api.getPost(image.fb_photo_id)
+                    log("Image with id {} and url {} still good.".format(image.id, image.url))
+                except RequestException as e:
+                    data = e.request.json()
+                    if 'error' in data:
+                        error = data['error']
+                        if int(error.get('code', 0)) == 100:
+                            log("Image with id {} and url {} was removed from Facebook.".format(image.id, image.url))
+                            log("Deleting it from the database.")
+                            image.delete()
+                            log("")
 
 
 @bacli.command
