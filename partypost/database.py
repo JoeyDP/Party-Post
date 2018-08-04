@@ -88,6 +88,9 @@ class Page(db.Model):
         if minTime and remaining > 0:
             qMin = q.filter(Image.time_created < minTime).order_by(Image.time_created.desc()).limit(remaining)
             images.extend(qMin.all())
+        else:
+            q = q.order_by(Image.time_created.desc()).limit(remaining)
+            return q.all()
 
         # If no time specified, query all
         if not minTime and not maxTime:

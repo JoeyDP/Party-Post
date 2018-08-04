@@ -169,9 +169,9 @@
                         if (missingItems > 0) {
                             console.log("Not enough items returned. Resetting minTime.");
                             minTime = null;
-                            clearTimeout(timeout);
-                            request = timeout = null;
-                            return addItems(missingItems);
+                            {#clearTimeout(timeout);#}
+                            {#request = timeout = null;#}
+                            {#return addItems(missingItems);#}
                         }
                     } finally {
                         clearTimeout(timeout);
