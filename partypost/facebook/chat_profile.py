@@ -4,7 +4,7 @@ from util import *
 from ..partybot import PartyBot
 
 
-PROFILE_URL = "https://graph.facebook.com/v2.9/me/messenger_profile"
+PROFILE_URL = "https://graph.facebook.com/me/messenger_profile"
 HEADERS = {"Content-Type": "application/json"}
 
 
@@ -12,8 +12,8 @@ def post(data, accessToken):
     jsonData = json.dumps(data)
     r = requests.post(PROFILE_URL, params={"access_token": accessToken}, headers=HEADERS, data=jsonData)
     if r.status_code != 200:
-        log(r.status_code)
-        log(r.text)
+        log("error: {}".format(str(r.status_code)))
+    log(r.text)
 
 
 def setup(page):
