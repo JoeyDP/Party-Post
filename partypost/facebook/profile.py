@@ -27,7 +27,8 @@ def getProfile(sender_id, access_token):
 def getName(sender_id, page):
     data = getProfile(sender_id, page.access_token)
     if not data:
-        raise RuntimeError
+        return "", ""
+        # raise RuntimeError
 
     firstName = data.get("first_name")
     lastName = data.get("last_name")
